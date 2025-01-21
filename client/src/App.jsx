@@ -12,22 +12,17 @@ import { GET_USER_INFO } from "@/utils/constants";
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
-  console.log("isAuthenticated=", isAuthenticated);
   return isAuthenticated ? children : <Navigate to="/auth" />;
 };
 
 const AuthRoute = ({ children }) => {
   const { userInfo } = useAppStore();
-  console.log("this is from authroute userinfo", userInfo);
   const isAuthenticated = !!userInfo;
-  console.log("isAuthenticated=", isAuthenticated);
   return isAuthenticated ? <Navigate to="/chat" /> : children;
 };
 
 function App() {
   const { userInfo, setUserInfo } = useAppStore();
-  console.log("this is first time checking userinfo from app.jsx", userInfo);
-
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,12 +34,10 @@ function App() {
 
         if (response.status === 200 && response.data.id) {
           setUserInfo(response.data);
-          console.log("this is userinfo from getIUserData", userInfo);
         } else {
           setUserInfo(undefined);
         }
-        console.log({ response });
-      } catch (error) {
+       } catch (error) {
         setUserInfo(undefined);
         console.log({ error });
       } finally {

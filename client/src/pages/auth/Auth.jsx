@@ -55,24 +55,11 @@ const Auth = () => {
         { email, password },
         { withCredentials: true }
       );
-      console.log("this is response from handlelogin", response);
 
       if (response.data.user.id) {
-        console.log("response.data.user.id", response.data.user.id);
         setUserInfo(response.data.user);
-        // console.log(
-        //   "this is userinfo from handlelogin , here 1st time setting userinfo ",
-        //   userInfo
-        // );
-        console.log("before navigate ....");
-        console.log(
-          "response.data.user.profileSetup",
-          response.data.user.profileSetup
-        );
-
         navigate("/chat");
       }
-      // console.log({ response });
     }
   };
 
