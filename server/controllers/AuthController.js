@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
 import { compare } from "bcrypt";
+import { rename, renameSync, unlinkSync } from "fs";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
@@ -91,14 +92,12 @@ export const login = async (request, response, next) => {
 //get-user-info
 export const getUserInfo = async (request, response, next) => {
   try {
-    console.log("this is userid from get userinfo controller.", request.userId);
-
     const userData = await User.findById(request.userId);
     if (!userData) {
       return response.status(404).send("User with the given id not found.");
     }
 
-    console.log("response for userinfo controller ",response.json);
+    console.log("response for userinfo controller ", response.json);
     return response.status(200).json({
       id: userData.id,
       email: userData.email,
@@ -108,8 +107,102 @@ export const getUserInfo = async (request, response, next) => {
       image: userData.image,
       color: userData.color,
     });
+  } catch (error) {
+    console.log({ error });
+    return response.status(500).send("internal Server Error");
+  }
+};
 
-    
+//update-profile-data
+export const updateProfile = async (request, response, next) => {
+  try {
+    const { userId } = request;
+    const { firstName, lastName, color } = request.body;
+
+    if (!firstName || !lastName) {
+      return response
+        .status(400)
+        .send("Firt namae, last name color is required.");
+    }
+
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        lastName,
+        firstName,
+        color,
+        profileSetup: true,
+      },
+      { new: true, runValidators: true }
+    );
+
+    console.log("this is userid from get userinfo controller.", request.userId);
+
+    console.log("response for userinfo controller ", response.json);
+    return response.status(200).json({
+      id: userData.id,
+      email: userData.email,
+      profileSetup: userData.profileSetup,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      image: userData.image,
+      color: userData.color,
+    });
+  } catch (error) {
+    console.log({ error });
+    return response.status(500).send("internal Server Error");
+  }
+};
+
+//add-Profile-Image
+export const addProfileImage = async (request, response, next) => {
+  try {
+    if (!request.file) {
+      return response.status(400).send("File is required");
+    }
+
+    const date = Date.now();
+    let fileName = "uploads/profiles/" + date + request.file.originalname;
+    renameSync(request.file.path, fileName);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      request.userId,
+      {
+        image: fileName,
+      },
+      { new: true, runValidators: true }
+    );
+
+    console.log("this is userid from get userinfo controller.", request.userId);
+
+    console.log("response for userinfo controller ", response.json);
+    return response.status(200).json({
+      image: updatedUser.image,
+    });
+  } catch (error) {
+    console.log({ error });
+    return response.status(500).send("internal Server Error");
+  }
+};
+
+//remove-Profile-Image
+export const removeProfileImage = async (request, response, next) => {
+  try {
+    const { userId } = request;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return response.status(404).send("user not found.");
+    }
+
+    if (user.image) {
+      unlinkSync(user.image);
+    }
+
+    user.image = null;
+    await user.save();
+
+    return response.status(200).send("Profile image is successfulll.");
   } catch (error) {
     console.log({ error });
     return response.status(500).send("internal Server Error");
