@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import authRoutes from "./routes/AuthRoutes.js";
 import { searchcontacts } from "./controllers/contactController.js";
+import setupSocket from "./socket.js";
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ app.use("/api/contacts",searchcontacts);
 const server = app.listen(port, () => {
   console.log(`Server running at port:${port}`);
 });
+
+setupSocket(server)
 
 mongoose
   .connect(databaseURL)
