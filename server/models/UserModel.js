@@ -23,7 +23,7 @@ const userSchema = mongoose.Schema({
     type: String,
     required: false,
   },
-  colour: {
+  color: {
     type: Number,
     required: false,
   },
@@ -33,12 +33,12 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre("save",async function (next){
+userSchema.pre("save", async function (next){
     const salt =  await genSalt();
     this.password = await hash(this.password,salt);
     next();
 })
 
-const User = mongoose.model("Users",userSchema);
+const User = mongoose.model("User",userSchema);
 
 export default User;

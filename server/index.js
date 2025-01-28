@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import authRoutes from "./routes/AuthRoutes.js";
-import { searchcontacts } from "./controllers/contactController.js";
+import contactRoutes from "./routes/ContactRoutes.js";
 import setupSocket from "./socket.js";
 
 dotenv.config();
@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth",authRoutes);
-app.use("/api/contacts",searchcontacts);
+app.use("/api/contacts",contactRoutes);
 
 const server = app.listen(port, () => {
   console.log(`Server running at port:${port}`);

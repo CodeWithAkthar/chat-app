@@ -3,6 +3,8 @@ import User from "../models/UserModel.js";
 export const searchcontacts = async (request, response, next) => {
   try {
     const { searchTerm } = request.body;
+    console.log("searchterm from body ",searchTerm);
+    
 
     if (searchTerm === undefined || searchTerm === null) {
       return response.status(404).send("searchTerm is required.");
