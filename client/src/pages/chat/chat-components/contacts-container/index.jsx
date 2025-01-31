@@ -1,32 +1,54 @@
-import NewDM from './components/new-dm';
-import ProfileInfo  from './components/profile-info/index'
-
+import { useEffect } from "react";
+import NewDM from "./components/new-dm";
+import ProfileInfo from "./components/profile-info/index";
+import { apiClient } from "@/lib/api-client";
+import { GET_DM_CONTACTS_ROUTES } from "@/utils/constants";
+import { useAppStore } from "@/store/Store";
+import ContactList from "@/components/contact-list";
 
 const ContactsContainer = () => {
+  const { setDirectMessagesContacts, directMessagesContacts,selectedChatMessages } = useAppStore();
+
+  useEffect(() => {
+    const getContacts = async () => {
+      const response = await apiClient.get(GET_DM_CONTACTS_ROUTES, {
+        withCredentials: true,
+      });
+
+      if (response.data.contacts) {
+        setDirectMessagesContacts(response.data.contacts);
+      }
+    };
+
+    getContacts();
+  }, [selectedChatMessages]);
+
   return (
     <div className="relative md:w-[30vw]  xl:w-[20vw] lg:w-[30vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
       <div className="pt-3">
-        <Logo/>
+        <Logo />
       </div>
-      
+
       <div className="my-5">
         <div className="flex items-center justify-between pr-10">
-          <Title text="Direct messages"/>
-          <NewDM/>
+          <Title text="Direct messages" />
+          <NewDM />
+        </div>
+        <div className="max-h-[38vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <ContactList contacts={directMessagesContacts} />
         </div>
       </div>
       <div className="my-5">
         <div className="flex items-center justify-between pr-10">
-          <Title text="channels"/>
+          <Title text="channels" />
         </div>
       </div>
-      <ProfileInfo/>
+      <ProfileInfo />
     </div>
-  )
-}
+  );
+};
 
 export default ContactsContainer;
-
 
 const Logo = () => {
   return (
@@ -61,10 +83,10 @@ const Logo = () => {
   );
 };
 
-
-
-const Title = ({text}) =>{
-  return ( 
-    <h6 className="pl-10 text-sm font-light tracking-widest uppercase text-neutral-400 text-opacity-90">{text}</h6>
-  )
-}
+const Title = ({ text }) => {
+  return (
+    <h6 className="pl-10 text-sm font-light tracking-widest uppercase text-neutral-400 text-opacity-90">
+      {text}
+    </h6>
+  );
+};
