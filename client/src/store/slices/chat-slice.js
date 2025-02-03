@@ -54,4 +54,37 @@ export const createChatSlice = (set, get) => ({
       ],
     });
   },
+  // Using Zustand store
+  addChannelInChannelList: (message) => {
+    set((state) => {
+      const channels = [...state.channels];
+      const channelToMove = channels.find(
+        (channel) => channel._id === message.channelId
+      );
+  
+      if (channelToMove) {
+        // Update the channel with new message data
+        const updatedChannel = {
+          ...channelToMove,
+          lastMessage: message.content,
+          timestamp: message.timestamp || new Date().toISOString(),
+          unreadCount: channelToMove._id !== state.selectedChatData?._id 
+            ? (channelToMove.unreadCount || 0) + 1 
+            : 0
+        };
+  
+        // Remove the channel from its current position
+        const filteredChannels = channels.filter(
+          (channel) => channel._id !== message.channelId
+        );
+  
+        // Return new state with updated channels
+        return {
+          channels: [updatedChannel, ...filteredChannels]
+        };
+      }
+  
+      return { channels }; // Return unchanged if channel not found
+    });
+  },
 });

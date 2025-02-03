@@ -26,10 +26,11 @@ export const SocketProvider = ({ children }) => {
 
       // Move the store access outside the handler
       const store = useAppStore.getState();
-      
+
       socket.current.on("receiveMessage", (message) => {
         // Get fresh state on each message
-        const { selectedChatData, selectedChatType, addMessage } = useAppStore.getState();
+        const { selectedChatData, selectedChatType, addMessage} =
+          useAppStore.getState();
         console.log("Received message event:", message); // Added for debugging
 
         if (
@@ -44,10 +45,36 @@ export const SocketProvider = ({ children }) => {
             selectedChatType,
             selectedChatData: selectedChatData?._id,
             messageSender: message.sender._id,
-            messageRecipient: message.recipient._id
+            messageRecipient: message.recipient._id,
           });
         }
       });
+
+      const handleReceiveChannelMessage = (message) => {
+        // Destructure only what we need from the store
+        const { 
+          selectedChatData, 
+          selectedChatType, 
+          addMessage, 
+          addChannelInChannelList 
+        } = useAppStore.getState();
+      
+        // First update the channel list - this should happen for every message
+        addChannelInChannelList(message);
+      
+        // Then handle the message if we're in the correct channel
+        if (
+          selectedChatType === 'channel' && // Add explicit check for channel type
+          selectedChatData?._id === message.channelId
+        ) {
+          console.log("Adding message to current chat:", message);
+          addMessage(message);
+        } else {
+          console.log("Message received for different channel:", message.channelId);
+        }
+      };
+
+      socket.current.on("recieve-channel-message", handleReceiveChannelMessage);
 
       return () => {
         socket.current.disconnect();
@@ -60,4 +87,4 @@ export const SocketProvider = ({ children }) => {
       {children}
     </SocketContext.Provider>
   );
-}; 
+};

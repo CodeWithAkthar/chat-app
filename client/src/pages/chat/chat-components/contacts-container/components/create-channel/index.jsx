@@ -43,13 +43,10 @@ const CreateChannel = () => {
   }, []);
 
   const createChannel = async () => {
-    console.log("channelname",channelName);
-    console.log("selected contacts",selectedContacts);
+    
     
     try {
-        console.log("this is inside 2");
         if (channelName.length > 0 && selectedContacts.length > 0) {
-            console.log("this is inside 1");
             
             const response = await apiClient.post(
                 CREATE_CHANNEL_ROUTE,
@@ -60,12 +57,10 @@ const CreateChannel = () => {
                 { withCredentials: true }
             );
         if (response.status === 201) {
-            console.log("this is inside 3");
             setChannelName("");
             setselectedContacts([]);
             setNewChannelModal(false);
             addChannel(response.data.channel);
-            console.log("this is inside 4");
         }
       }
     } catch(error) {

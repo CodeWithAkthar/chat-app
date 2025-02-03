@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import NewDM from "./components/new-dm";
 import ProfileInfo from "./components/profile-info/index";
 import { apiClient } from "@/lib/api-client";
-import { GET_DM_CONTACTS_ROUTES } from "@/utils/constants";
+import { GET_DM_CONTACTS_ROUTES, GET_USER_CHANNELS_ROUTE } from "@/utils/constants";
 import { useAppStore } from "@/store/Store";
 import ContactList from "@/components/contact-list";
 import CreateChannel from "./components/create-channel";
@@ -13,6 +13,7 @@ const ContactsContainer = () => {
     directMessagesContacts,
     selectedChatMessages,
     channels,
+    setChannels
   } = useAppStore();
 
   useEffect(() => {
@@ -25,9 +26,24 @@ const ContactsContainer = () => {
         setDirectMessagesContacts(response.data.contacts);
       }
     };
+    
+    const getChannels = async () => {
+      const response = await apiClient.get(GET_USER_CHANNELS_ROUTE, {
+        withCredentials: true,
+      });
+      
+      console.log("this is channels",response.data.channels );
+      
+
+      if (response.data.channels) {
+        setChannels(response.data.channels);
+      }
+    };
+    
 
     getContacts();
-  }, [selectedChatMessages]);
+    getChannels();
+  }, [selectedChatMessages,setChannels,setDirectMessagesContacts]);
 
   return (
     <div className="relative md:w-[30vw]  xl:w-[20vw] lg:w-[30vw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
