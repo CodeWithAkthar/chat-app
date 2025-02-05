@@ -105,7 +105,7 @@ const Logo = () => {
           fill="#a16ee8"
         ></path>{" "}
       </svg>
-      <span className="text-3xl font-semibold ">Chat-app</span>
+      <span className="text-3xl font-semibold ">QuickTalk</span>
     </div>
   );
 };

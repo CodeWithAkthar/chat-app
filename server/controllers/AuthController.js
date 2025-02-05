@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/UserModel.js";
 import { compare } from "bcrypt";
-import { rename, renameSync, unlinkSync } from "fs";
+import { renameSync, unlinkSync } from "fs";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
@@ -48,30 +48,29 @@ export const signup = async (request, response, next) => {
 export const login = async (request, response, next) => {
   try {
     const { email, password } = request.body;
-    // console.log("this is email",email);
-    // console.log("this is password",password);
+    //checking if there have email & password
     if (!email || !password) {
       return response.status(400).send("Email and Password is required.");
     }
-
+    //checking user in db
     const user = await User.findOne({ email });
     if (!user) {
       return response.status(404).send("User not found");
     }
-
+    //checking password
     const auth = await compare(password, user.password);
     if (!auth) {
       return response.status(400).send("Password is incorrect.");
     }
 
-    // console.log("this is user.. ", user);
-    // console.log("this is user id ", user.id);
-
+    //seting cookie
     response.cookie("jwt", createToken(email, user.id), {
       maxAge,
       secure: true,
       sameSite: "None",
     });
+
+    //sending response
     return response.status(200).json({
       user: {
         id: user.id,
@@ -92,12 +91,13 @@ export const login = async (request, response, next) => {
 //get-user-info
 export const getUserInfo = async (request, response, next) => {
   try {
+    //checking user exists
     const userData = await User.findById(request.userId);
     if (!userData) {
       return response.status(404).send("User with the given id not found.");
     }
 
-    console.log("response for userinfo controller ", response.json);
+    //sending user data
     return response.status(200).json({
       id: userData.id,
       email: userData.email,
@@ -116,15 +116,17 @@ export const getUserInfo = async (request, response, next) => {
 //update-profile-data
 export const updateProfile = async (request, response, next) => {
   try {
+    //taking userid
     const { userId } = request;
+    // destructring data from body
     const { firstName, lastName, color } = request.body;
-
+    //sending response
     if (!firstName || !lastName) {
       return response
         .status(400)
         .send("Firt namae, last name color is required.");
     }
-
+    //updating data in db
     const userData = await User.findByIdAndUpdate(
       userId,
       {
@@ -136,9 +138,7 @@ export const updateProfile = async (request, response, next) => {
       { new: true, runValidators: true }
     );
 
-    console.log("this is userid from get userinfo controller.", request.userId);
-
-    console.log("response for userinfo controller ", response.json);
+    //sending response
     return response.status(200).json({
       id: userData.id,
       email: userData.email,
@@ -157,14 +157,17 @@ export const updateProfile = async (request, response, next) => {
 //add-Profile-Image
 export const addProfileImage = async (request, response, next) => {
   try {
+    //checking file
     if (!request.file) {
       return response.status(400).send("File is required");
     }
-
+    //setting date for rename
     const date = Date.now();
     let fileName = "uploads/profiles/" + date + request.file.originalname;
+    //renaming using fs module
     renameSync(request.file.path, fileName);
 
+    //updating image
     const updatedUser = await User.findByIdAndUpdate(
       request.userId,
       {
@@ -172,10 +175,7 @@ export const addProfileImage = async (request, response, next) => {
       },
       { new: true, runValidators: true }
     );
-
-    console.log("this is userid from get userinfo controller.", request.userId);
-
-    console.log("response for userinfo controller ", response.json);
+    //sending response
     return response.status(200).json({
       image: updatedUser.image,
     });
@@ -189,19 +189,20 @@ export const addProfileImage = async (request, response, next) => {
 export const removeProfileImage = async (request, response, next) => {
   try {
     const { userId } = request;
+    //finding user
     const user = await User.findById(userId);
-
+    //checking user
     if (!user) {
       return response.status(404).send("user not found.");
     }
-
+    //delete image using fs module from server
     if (user.image) {
       unlinkSync(user.image);
     }
-
+    //set image null in db and save
     user.image = null;
     await user.save();
-
+    //sending response
     return response.status(200).send("Profile image is successfulll.");
   } catch (error) {
     console.log({ error });
@@ -212,12 +213,13 @@ export const removeProfileImage = async (request, response, next) => {
 //Logout controller
 export const logout = async (request, response, next) => {
   try {
-    response.cookie("jwt","", {
-      maxAge:1,
+    //set cookie
+    response.cookie("jwt", "", {
+      maxAge: 1,
       secure: true,
       sameSite: "None",
     });
-   
+    // sending response
     return response.status(200).send("Logout successfull.");
   } catch (error) {
     console.log({ error });

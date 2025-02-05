@@ -85,11 +85,12 @@ const Auth = () => {
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col items-center justify-center ">
             <div className="flex items-center justify-center">
-              <h1 className="text-5xl font-bold md:text-6xl">Welcome</h1>
-              <img src={Victory} alt="victory emoji" className="h-[100px]" />
+              <h3 className="text-2xl font-bold md:text-4xl">
+                Welcome to <span className="text-purple-500">QuickTalk</span>{" "}
+              </h3>
             </div>
             <p className="font-medium text-center">
-              Fill in the details to get started with the best chat app!
+              Fill in the details to get started with the chat app!
             </p>
           </div>
           <div className="flex items-center justify-center w-full">
